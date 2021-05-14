@@ -1,3 +1,3 @@
 # Easly-Draw
 
-Display Easly source code.
+Displays Easly source code.

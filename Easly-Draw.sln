@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestDebug", "Test\TestDebug\TestDebug.csproj", "{041BF2A9-A363-4C05-B2AB-86FA3F5D4F63}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Easly-Draw", "Easly-Draw\Easly-Draw.csproj", "{182A2175-4C93-434A-A027-E101FBD55F48}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D28E474-A0F4-4C3C-9B50-9BE344306900} = {0D28E474-A0F4-4C3C-9B50-9BE344306900}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test-Easly-Draw", "Test\Test-Easly-Draw\Test-Easly-Draw.csproj", "{C3D406EF-0D02-4A09-93BE-8D73D11F619D}"
 EndProject

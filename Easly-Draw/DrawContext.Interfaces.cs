@@ -1,127 +1,17 @@
 ﻿namespace EaslyDraw
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Globalization;
-    using System.IO;
-    using System.Reflection;
-    using System.Runtime.InteropServices;
-    using System.Windows.Interop;
-    using System.Windows.Media;
-    using System.Windows.Media.Animation;
-    using System.Windows.Media.Imaging;
     using EaslyController.Constants;
     using EaslyController.Controller;
     using EaslyController.Layout;
     using EaslyNumber;
+    using System.Diagnostics;
+    using System.Windows.Media;
 
     /// <summary>
     /// An implementation of IxxxDrawContext for WPF.
     /// </summary>
-    public class DrawContext : MeasureContext, ILayoutDrawContext
+    public partial class DrawContext : MeasureContext, ILayoutDrawContext
     {
-        #region Init
-        /// <summary>
-        /// Creates and initializes a new context.
-        /// </summary>
-        /// <param name="typeface">The font to use for text.</param>
-        /// <param name="fontSize">The font size to use for text.</param>
-        /// <param name="culture">The culture to use for text.</param>
-        /// <param name="flowDirection">The flow direction to use for text.</param>
-        /// <param name="brushTable">Brushes for each element to display.</param>
-        /// <param name="penTable">Pens for each element to display.</param>
-        /// <param name="hasCommentIcon">True if the comment icon must be displayed.</param>
-        /// <param name="displayFocus">True if focused elements should be displayed as such.</param>
-        public static DrawContext CreateDrawContext(Typeface typeface, double fontSize, CultureInfo culture, System.Windows.FlowDirection flowDirection, IReadOnlyDictionary<BrushSettings, Brush> brushTable, IReadOnlyDictionary<PenSettings, Pen> penTable, bool hasCommentIcon, bool displayFocus)
-        {
-            DrawContext Result = new DrawContext(typeface, fontSize, culture, flowDirection, brushTable, penTable, hasCommentIcon, displayFocus);
-            Result.Update();
-            return Result;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DrawContext"/> class.
-        /// </summary>
-        /// <param name="typeface">The font to use for text.</param>
-        /// <param name="fontSize">The font size to use for text.</param>
-        /// <param name="culture">The culture to use for text.</param>
-        /// <param name="flowDirection">The flow direction to use for text.</param>
-        /// <param name="brushTable">Brushes for each element to display.</param>
-        /// <param name="penTable">Pens for each element to display.</param>
-        /// <param name="hasCommentIcon">True if the comment icon must be displayed.</param>
-        /// <param name="displayFocus">True if focused elements should be displayed as such.</param>
-        protected DrawContext(Typeface typeface, double fontSize, CultureInfo culture, System.Windows.FlowDirection flowDirection, IReadOnlyDictionary<BrushSettings, Brush> brushTable, IReadOnlyDictionary<PenSettings, Pen> penTable, bool hasCommentIcon, bool displayFocus)
-            : base(typeface, fontSize, culture, flowDirection, brushTable, penTable)
-        {
-            IsLastFocusedFullCell = false;
-            DisplayFocus = displayFocus;
-
-            FlashAnimation = new DoubleAnimation(0, new System.Windows.Duration(TimeSpan.FromSeconds(1)));
-            FlashAnimation.RepeatBehavior = RepeatBehavior.Forever;
-            FlashAnimation.EasingFunction = new FlashEasingFunction();
-            FlashClock = FlashAnimation.CreateClock();
-
-            if (hasCommentIcon)
-                CommentIcon = LoadPngResource("Comment");
-        }
-
-        private BitmapSource LoadPngResource(string resourceName)
-        {
-            Assembly CurrentAssembly = Assembly.GetExecutingAssembly();
-            string ResourcePath = $"EaslyDraw.Resources.{resourceName}.png";
-
-            using (Stream ResourceStream = CurrentAssembly.GetManifestResourceStream(ResourcePath))
-            {
-                System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(ResourceStream);
-                return BitmapToBitmapSource(bmp);
-            }
-        }
-
-        [DllImport("gdi32")]
-        private static extern int DeleteObject(IntPtr o);
-
-        private BitmapSource BitmapToBitmapSource(System.Drawing.Bitmap bmp)
-        {
-            IntPtr ip = bmp.GetHbitmap();
-            try
-            {
-                return Imaging.CreateBitmapSourceFromHBitmap(ip, IntPtr.Zero, System.Windows.Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                DeleteObject(ip);
-            }
-        }
-        #endregion
-
-        #region Properties
-        /// <summary>
-        /// The WPF context used to draw.
-        /// </summary>
-        public DrawingContext WpfDrawingContext { get; private set; }
-
-        /// <summary>
-        /// The icon to use to signal a comment.
-        /// </summary>
-        public BitmapSource CommentIcon { get; set; }
-
-        /// <summary>
-        /// The padding margin applied to comment text.
-        /// </summary>
-        public Padding CommentPadding { get; private set; }
-
-        /// <summary>
-        /// True if focused elements should be displayed as such.
-        /// </summary>
-        public bool DisplayFocus { get; }
-        #endregion
-
-        #region Implementation of IxxxDrawContext
         /// <summary>
         /// Measures a string.
         /// </summary>
@@ -811,93 +701,5 @@
 
             WpfDrawingContext.DrawRectangle(GetBrush(BrushSettings.Selection), RectanglePen, new System.Windows.Rect(PagePadding.Left.Draw + rect.X, PagePadding.Top.Draw + rect.Y, rect.Width, rect.Height));
         }
-        #endregion
-
-        #region Client Interface
-        /// <summary>
-        /// Updates the drawing context.
-        /// </summary>
-        /// <param name="wpfDrawingContext">The new instance of <see cref="DrawingContext"/>.</param>
-        public virtual void SetWpfDrawingContext(DrawingContext wpfDrawingContext)
-        {
-            WpfDrawingContext = wpfDrawingContext;
-        }
-
-        /// <summary>
-        /// Recalculate internal constants.
-        /// To call after a property was changed.
-        /// </summary>
-        public override void Update()
-        {
-            base.Update();
-
-            FormattedText ft;
-
-            ft = CreateFormattedText(" ", EmSize, GetBrush(BrushSettings.Default));
-
-            LeftBracketGeometry = ScaleGlyphGeometryHeight("[", true, 0.3, 0.3);
-            RightBracketGeometry = ScaleGlyphGeometryHeight("]", true, 0.3, 0.3);
-            LeftCurlyBracketGeometry = ScaleGlyphGeometryHeight("{", true, 0.25, 0.3);
-            RightCurlyBracketGeometry = ScaleGlyphGeometryHeight("}", true, 0.25, 0.3);
-            LeftParenthesisGeometry = ScaleGlyphGeometryHeight("(", true, 0, 0);
-            RightParenthesisGeometry = ScaleGlyphGeometryHeight(")", true, 0, 0);
-            HorizontalLineGeometry = ScaleGlyphGeometryWidth("-", true, 0, 0);
-            CommentPadding = new Padding(new Measure() { Draw = WhitespaceWidth / 2 }, new Measure() { Draw = LineHeight.Draw / 4 }, new Measure() { Draw = WhitespaceWidth / 2 }, new Measure() { Draw = LineHeight.Draw / 4 });
-
-            if (CommentIcon != null)
-            {
-                double PagePaddingX = CommentIcon.Width / 2;
-                double PagePaddingY = CommentIcon.Height / 2;
-                PagePadding = new Padding(new Measure() { Draw = PagePaddingX }, new Measure() { Draw = PagePaddingY }, new Measure() { Draw = InsertionCaretWidth }, Measure.Zero);
-            }
-        }
-        #endregion
-
-        #region Implementation
-        /// <summary></summary>
-        protected virtual ScalableGeometry ScaleGlyphGeometryWidth(string text, bool isWidthScaled, double leftPercent, double rightPercent)
-        {
-            FormattedText GlyphText = CreateFormattedText(text, EmSize, GetBrush(BrushSettings.Symbol));
-            GlyphText.Trimming = System.Windows.TextTrimming.None;
-
-            System.Windows.Rect Bounds = new System.Windows.Rect(new System.Windows.Point(0, 0), new System.Windows.Size(GlyphText.Width, GlyphText.Width));
-            Geometry GlyphGeometry = GlyphText.BuildGeometry(Bounds.Location);
-
-            return new ScalableGeometry(GlyphGeometry, Bounds, isWidthScaled, leftPercent, rightPercent, false, 0, 0);
-        }
-
-        /// <summary></summary>
-        protected virtual ScalableGeometry ScaleGlyphGeometryHeight(string text, bool isHeightScaled, double topPercent, double bottomPercent)
-        {
-            FormattedText GlyphText = CreateFormattedText(text, EmSize, GetBrush(BrushSettings.Symbol));
-            GlyphText.Trimming = System.Windows.TextTrimming.None;
-
-            System.Windows.Rect Bounds = new System.Windows.Rect(new System.Windows.Point(0, 0), new System.Windows.Size(GlyphText.Width, GlyphText.Height));
-            Geometry GlyphGeometry = GlyphText.BuildGeometry(Bounds.Location);
-
-            return new ScalableGeometry(GlyphGeometry, Bounds, false, 0, 0, isHeightScaled, topPercent, bottomPercent);
-        }
-
-        /// <summary></summary>
-        protected ScalableGeometry LeftBracketGeometry { get; private set; }
-        /// <summary></summary>
-        protected ScalableGeometry RightBracketGeometry { get; private set; }
-        /// <summary></summary>
-        protected ScalableGeometry LeftCurlyBracketGeometry { get; private set; }
-        /// <summary></summary>
-        protected ScalableGeometry RightCurlyBracketGeometry { get; private set; }
-        /// <summary></summary>
-        protected ScalableGeometry LeftParenthesisGeometry { get; private set; }
-        /// <summary></summary>
-        protected ScalableGeometry RightParenthesisGeometry { get; private set; }
-        /// <summary></summary>
-        protected ScalableGeometry HorizontalLineGeometry { get; private set; }
-        /// <summary></summary>
-        protected DoubleAnimation FlashAnimation { get; private set; }
-        /// <summary></summary>
-        protected AnimationClock FlashClock { get; private set; }
-        /// <summary></summary>
-        protected bool IsLastFocusedFullCell { get; private set; }
-        #endregion
     }
 }

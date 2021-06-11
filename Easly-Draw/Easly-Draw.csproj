@@ -14,8 +14,8 @@
     <Product />
     <Description>Displays Easly source code</Description>
     <Copyright>Copyright © 2019 David Le Bansais</Copyright>
-    <AssemblyVersion>1.0.1.4</AssemblyVersion>
-    <FileVersion>1.0.1.3</FileVersion>
+    <AssemblyVersion>1.0.1.5</AssemblyVersion>
+    <FileVersion>1.0.1.4</FileVersion>
     <RepositoryUrl>https://github.com/dlebansais/Easly-Draw</RepositoryUrl>
     <NeutralLanguage>en-US</NeutralLanguage>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

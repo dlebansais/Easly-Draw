@@ -114,13 +114,11 @@
 
             if ((AsGeometryGroup = geometry as GeometryGroup) != null)
                 return GeometryToFigure(AsGeometryGroup.Children[0], out figure);
-
             else if ((AsPathGeometry = geometry as PathGeometry) != null)
             {
                 figure = AsPathGeometry.Figures[0];
                 return true;
             }
-
             else
             {
                 figure = null;
@@ -141,17 +139,14 @@
 
                 if ((AsLineSegment = Segment as LineSegment) != null)
                     EnlargeEnvelope(AsLineSegment.Point, ref Envelope);
-
                 else if ((AsPolyLineSegment = Segment as PolyLineSegment) != null)
                     EnlargeEnvelope(AsPolyLineSegment.Points, ref Envelope);
-
                 else if ((AsBezierSegment = Segment as BezierSegment) != null)
                 {
                     EnlargeEnvelope(AsBezierSegment.Point1, ref Envelope);
                     EnlargeEnvelope(AsBezierSegment.Point2, ref Envelope);
                     EnlargeEnvelope(AsBezierSegment.Point3, ref Envelope);
                 }
-
                 else if ((AsPolyBezierSegment = Segment as PolyBezierSegment) != null)
                     EnlargeEnvelope(AsPolyBezierSegment.Points, ref Envelope);
             }
@@ -200,16 +195,12 @@
 
             if ((AsLineSegment = segment as LineSegment) != null)
                 return new LineSegment(PrescaledPoint(AsLineSegment.Point, bounds, widthScale, heightScale), AsLineSegment.IsStroked);
-
             else if ((AsPolyLineSegment = segment as PolyLineSegment) != null)
                 return new PolyLineSegment(PrescaledPointList(AsPolyLineSegment.Points, bounds, widthScale, heightScale), AsPolyLineSegment.IsStroked);
-
             else if ((AsBezierSegment = segment as BezierSegment) != null)
                 return new BezierSegment(PrescaledPoint(AsBezierSegment.Point1, bounds, widthScale, heightScale), PrescaledPoint(AsBezierSegment.Point2, bounds, widthScale, heightScale), PrescaledPoint(AsBezierSegment.Point3, bounds, widthScale, heightScale), AsBezierSegment.IsStroked);
-
             else if ((AsPolyBezierSegment = segment as PolyBezierSegment) != null)
                 return new PolyBezierSegment(PrescaledPointList(AsPolyBezierSegment.Points, bounds, widthScale, heightScale), AsPolyBezierSegment.IsStroked);
-
             else
                 return segment.Clone();
         }
@@ -237,10 +228,8 @@
 
                 if (X < widthScale.Low)
                     X = X - widthScale.Low;
-
                 else if (X > Width - widthScale.High)
                     X = X - (Width - widthScale.High) + 1;
-
                 else
                     X = (X - widthScale.Low) / (Width - widthScale.High - widthScale.Low);
             }
@@ -253,10 +242,8 @@
 
                 if (Y < heightScale.Low)
                     Y = Y - heightScale.Low;
-
                 else if (Y > Height - heightScale.High)
                     Y = Y - (Height - heightScale.High) + 1;
-
                 else
                     Y = (Y - heightScale.Low) / (Height - heightScale.High - heightScale.Low);
             }
@@ -291,13 +278,10 @@
 
                     if ((AsLineSegment = Segment as LineSegment) != null)
                         sgc.LineTo(ScaledPoint(AsLineSegment.Point, ScaledWidth, ScaledHeight), AsLineSegment.IsStroked, AsLineSegment.IsSmoothJoin);
-
                     else if ((AsPolyLineSegment = Segment as PolyLineSegment) != null)
                         sgc.PolyLineTo(ScaledPointList(AsPolyLineSegment.Points, ScaledWidth, ScaledHeight), AsPolyLineSegment.IsStroked, AsPolyLineSegment.IsSmoothJoin);
-
                     else if ((AsBezierSegment = Segment as BezierSegment) != null)
                         sgc.BezierTo(ScaledPoint(AsBezierSegment.Point1, ScaledWidth, ScaledHeight), ScaledPoint(AsBezierSegment.Point2, ScaledWidth, ScaledHeight), ScaledPoint(AsBezierSegment.Point3, ScaledWidth, ScaledHeight), AsBezierSegment.IsStroked, AsBezierSegment.IsSmoothJoin);
-
                     else if ((AsPolyBezierSegment = Segment as PolyBezierSegment) != null)
                         sgc.PolyBezierTo(ScaledPointList(AsPolyBezierSegment.Points, ScaledWidth, ScaledHeight), AsPolyBezierSegment.IsStroked, AsPolyBezierSegment.IsSmoothJoin);
                 }
@@ -324,10 +308,8 @@
             {
                 if (X < 0)
                     X = X + scaledWidth.Low;
-
                 else if (X > 1)
                     X = X + scaledWidth.Scale - scaledWidth.High - 1;
-
                 else
                     X = (X * (scaledWidth.Scale - scaledWidth.Low - scaledWidth.High)) + scaledWidth.Low;
             }
@@ -336,10 +318,8 @@
             {
                 if (Y < 0)
                     Y = Y + scaledHeight.Low;
-
                 else if (Y > 1)
                     Y = Y + scaledHeight.Scale - scaledHeight.High - 1;
-
                 else
                     Y = (Y * (scaledHeight.Scale - scaledHeight.Low - scaledHeight.High)) + scaledHeight.Low;
             }

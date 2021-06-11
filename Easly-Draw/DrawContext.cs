@@ -285,11 +285,7 @@
         {
             Debug.Assert(WpfDrawingContext != null);
 
-            if (isFocused && DisplayFocus)
-            {
-                ChangeFlashClockOpacity(isVisible: true);
-                WpfDrawingContext.PushOpacity(1, FlashClock);
-            }
+            bool IsPushed = PushOpacity(isFocused);
 
             switch (symbol)
             {
@@ -325,7 +321,24 @@
                     break;
             }
 
+            PopOpacity(IsPushed);
+        }
+
+        private bool PushOpacity(bool isFocused)
+        {
             if (isFocused && DisplayFocus)
+            {
+                ChangeFlashClockOpacity(isVisible: true);
+                WpfDrawingContext.PushOpacity(1, FlashClock);
+                return true;
+            }
+            else
+                return false;
+        }
+
+        private void PopOpacity(bool isPushed)
+        {
+            if (isPushed)
             {
                 WpfDrawingContext.Pop();
                 IsLastFocusedFullCell = true;

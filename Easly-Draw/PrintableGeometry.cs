@@ -66,23 +66,19 @@
 
             if (Length == 0)
             { }
-
             else if (Length == 1)
                 Result[0] = Single;
-
             else if (Length == 2)
             {
                 Result[0] = Tip1;
                 Result[1] = Tip2;
             }
-
             else if (Length == 3)
             {
                 Result[0] = Tip1;
                 Result[1] = Middle;
                 Result[2] = Tip2;
             }
-
             else
             {
                 Result[0] = Tip1;
